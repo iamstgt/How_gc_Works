@@ -1,5 +1,7 @@
 # How_gc_Works
-This aims to help Go developers gain a deeper understanding of the inner workings of gc.
+This aims to provide Go developers with an overiew of the inner workings of gc. 
+
+The gc code: https://github.com/golang/go/tree/master/src/cmd/compile
 
 ## 1. Lexical Analysis and Syntax Analysis
 The compiler analyzes the source code and converts it into a form that can be easily processed.
