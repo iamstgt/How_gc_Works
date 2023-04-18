@@ -70,7 +70,54 @@ Optimized SSA is something like this.
 In the optimized version, the unnecessary memory allocation, initialization, and copying operations have been removed. Instead, the local variables have been directly referenced by their names. Also, the function arguments have been directly used instead of being stored in local variables. Furthermore, the unnecessary variables `v9` and `v11` has been removed, and the variables `v10` and `v12` have been replaced with constant values.
 
 The corresponding code for this step; https://github.com/golang/go/tree/master/src/cmd/compile/internal/ssa
-## 5. Machine code for a given target
-Finally, the optimized code is compiled into machine code that can be executed on a specific target platform.
+## 5. Assembly
+The SSA that is architecture-independent is converted into assembly that is architecture-dependent.
+
+```
+go tool objdump -S main.o > main.objdump
+```
+```
+TEXT "".myFunc(SB) gofile../Users/iamstgt/~/How_gc_Works/main.go
+	return a + b
+  0x13cd		b804000000		MOVL $0x4, AX		
+  0x13d2		c3			RET			
+
+TEXT "".main(SB) gofile../Users/iamstgt/~/How_gc_Works/main.go
+func main() {
+  0x13d3		493b6610		CMPQ 0x10(R14), SP	[2:2]R_USEIFACE:type.int [2:2]R_USEIFACE:type.*os.File	
+  0x13d7		765b			JBE 0x1434		
+  0x13d9		4883ec40		SUBQ $0x40, SP		
+  0x13dd		48896c2438		MOVQ BP, 0x38(SP)	
+  0x13e2		488d6c2438		LEAQ 0x38(SP), BP	
+	fmt.Println(myFunc())
+  0x13e7		440f117c2428		MOVUPS X15, 0x28(SP)	
+  0x13ed		b804000000		MOVL $0x4, AX		
+  0x13f2		90			NOPL			
+  0x13f3		e800000000		CALL 0x13f8		[1:5]R_CALL:runtime.convT64<1>	
+  0x13f8		488d0d00000000		LEAQ 0(IP), CX		[3:7]R_PCREL:type.int		
+  0x13ff		48894c2428		MOVQ CX, 0x28(SP)	
+  0x1404		4889442430		MOVQ AX, 0x30(SP)	
+	return Fprintln(os.Stdout, a...)
+  0x1409		488b1d00000000		MOVQ 0(IP), BX		[3:7]R_PCREL:os.Stdout			
+  0x1410		488d0500000000		LEAQ 0(IP), AX		[3:7]R_PCREL:go.itab.*os.File,io.Writer	
+  0x1417		488d4c2428		LEAQ 0x28(SP), CX	
+  0x141c		bf01000000		MOVL $0x1, DI		
+  0x1421		4889fe			MOVQ DI, SI		
+  0x1424		e800000000		CALL 0x1429		[1:5]R_CALL:fmt.Fprintln	
+}
+  0x1429		488b6c2438		MOVQ 0x38(SP), BP	
+  0x142e		4883c440		ADDQ $0x40, SP		
+  0x1432		90			NOPL			
+  0x1433		c3			RET			
+func main() {
+  0x1434		e800000000		CALL 0x1439		[1:5]R_CALL:runtime.morestack_noctxt	
+  0x1439		eb98			JMP "".main(SB)		
+
+```
+This invovation will generate the main.objdump. Objdump command disassembles executable files and it printes a disassembly of all text symbols (code) in the binary.
+
+
+## 6. Machine code for a given target
+Finally, the assembly is compiled into machine code that can be executed on a target CPU architecture.
 
 The corresponding code for this step (for the x86 architecture); https://github.com/golang/go/tree/master/src/cmd/compile/internal/x86
