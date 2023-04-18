@@ -121,3 +121,5 @@ This invovation will generate the main.objdump. Objdump command disassembles exe
 Finally, the assembly is compiled into machine code that can be executed on a target CPU architecture.
 
 The corresponding code for this step (for the x86 architecture); https://github.com/golang/go/tree/master/src/cmd/compile/internal/x86
+
+There's one more step to generate the ready-to-use output. This is not a role of gc, but rather the linker that combines multiple object files into one and generates an executable binary that is executed by CPU.
